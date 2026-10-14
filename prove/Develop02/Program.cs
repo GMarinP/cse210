@@ -41,16 +41,19 @@ class Program
             else if (choice == 2)
             {
                 Console.WriteLine("You chose to display.");
+                journal.DisplayEntries();
 
             }
             else if (choice == 3)
             {
                 Console.WriteLine("You chose to save.");
                 journal.SaveJournal();
+                Console.WriteLine("Your journal has been saved.");
             }
             else if (choice == 4)
             {
-                Console.WriteLine("You chose to load.");
+                Console.WriteLine("You chose to upload.");
+                journal.LoadJournal();
             }
             else if (choice == 5)
             {
