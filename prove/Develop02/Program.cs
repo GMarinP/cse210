@@ -8,7 +8,8 @@ class Program
 
         bool isRunning = true;
 
-        Entry entry = new Entry();
+        
+        Journal journal = new Journal();
 
         while (isRunning)
         {
@@ -28,18 +29,24 @@ class Program
             if (choice == 1)
             {
                 Console.WriteLine("You chose to write.");
+                
+                Entry entry = new Entry();
+
                 entry.GetDate();
                 entry.GiveRandomPrompt();
                 entry.GetResponse();
 
+                journal.AddEntry(entry);
             }
             else if (choice == 2)
             {
                 Console.WriteLine("You chose to display.");
+
             }
             else if (choice == 3)
             {
                 Console.WriteLine("You chose to save.");
+                journal.SaveJournal();
             }
             else if (choice == 4)
             {
