@@ -26,26 +26,34 @@ class Journal
 
     public void DisplayEntries()
     {
-        // read the csv file and display the entries in a readable format
-        string filePath = "C:\\Users\\giova\\OneDrive\\BYU-I\\CSE 210\\cse210\\prove\\Develop02\\journal.csv";
-        string[] lines = File.ReadAllLines(filePath);
-
-        foreach (string line in lines.Skip(1))
+        // Display the entries currently loaded in the journal.
+        foreach (Entry entry in _entries)
         {
-            string[] fields = line.Split(';');
             Console.WriteLine($@"
-            Entry Date: {fields[0]}
-            Your Prompt: {fields[1]}
-            Your Response: {fields[2]}
+            Entry Date: {entry._date}
+            Your Prompt: {entry._prompt}
+            Your Response: {entry._response}
             ");
         }
     }
 
     public void LoadJournal()
     {
-        // ask the user for a file name and it replaces the current journal with that file
-        Console.WriteLine("Paste the path of the file you want to upload");
+        // Ask for a file name so the program works on any computer.
+        Console.Write("Enter the file name or path to load: ");
         string filePath = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            Console.WriteLine("A file name is required.");
+            return;
+        }
+
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine($"The file '{filePath}' was not found.");
+            return;
+        }
 
         string[] lines = File.ReadAllLines(filePath);
         _entries.Clear();
@@ -55,7 +63,7 @@ class Journal
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            string[] fields = line.Split(';');
+            string[] fields = line.Split(';', 3);
 
             if (fields.Length != 3)
             {
@@ -77,20 +85,26 @@ class Journal
 
     public void SaveJournal()
     {
-        // ask the user for a file name and saves the journal to that file in csv format
-        var csv = new StringBuilder();
-        string filePath = "C:\\Users\\giova\\OneDrive\\BYU-I\\CSE 210\\cse210\\prove\\Develop02\\journal.csv";
+        // Ask for a file name so the program works on any computer.
+        Console.Write("Enter the file name or path to save: ");
+        string filePath = Console.ReadLine();
 
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            Console.WriteLine("A file name is required.");
+            return;
+        }
+
+        // Save a complete file rather than appending duplicate entries.
+        var csv = new StringBuilder();
+        csv.AppendLine("date;prompt;response");
 
         foreach (Entry entry in _entries)
         {
-            var first = entry._date.ToString();
-            var second = entry._prompt.ToString();
-            var third = entry._response.ToString();
-            var newLine = string.Join(";", first, second, third);
-            csv.AppendLine(newLine); 
+            csv.AppendLine(string.Join(";", entry._date, entry._prompt, entry._response));
         }
 
-        File.AppendAllText(filePath, csv.ToString());
+        File.WriteAllText(filePath, csv.ToString());
+        Console.WriteLine($"Journal saved to {Path.GetFullPath(filePath)}.");
     }
 }
