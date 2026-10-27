@@ -1,6 +1,6 @@
 class Scripture
 {
-    private readonly List<Word> _wordList;
+    private List<Word> _wordList;
     private Reference _reference;
 
     public Scripture(Reference reference, string scripture)
@@ -14,10 +14,10 @@ class Scripture
     {
         _wordList.Clear();
 
-        foreach (string wordText in scripture.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        foreach (string text in scripture.Split(' '))
         {
             Word word = new Word();
-            word.SetWord(wordText);
+            word.SetWord(text);
             _wordList.Add(word);
         }
     }
@@ -46,10 +46,10 @@ class Scripture
         Console.WriteLine();
     }
 
-    public void HideRandomWords(int numberToHide)
+    public void HideRandomWords(int number)
     {
         List<Word> visibleWords = _wordList.Where(word => !word.GetIsHidden()).ToList();
-        int count = Math.Min(numberToHide, visibleWords.Count);
+        int count = Math.Min(number, visibleWords.Count);
 
         for (int i = 0; i < count; i++)
         {
