@@ -24,13 +24,13 @@ class Reference
 
     public void Display()
     {
-        if (_verseEnding == 0)
-        {
-            Console.WriteLine($"{_book} {_chapter}:{_verseBeginning}");
-        }
-        else
-        {
-            Console.WriteLine($"{_book} {_chapter}:{_verseBeginning}-{_verseEnding}");
-        }
+        Console.WriteLine(this);
+    }
+
+    public override string ToString()
+    {
+        return _verseEnding == 0
+            ? $"{_book} {_chapter}:{_verseBeginning}"
+            : $"{_book} {_chapter}:{_verseBeginning}-{_verseEnding}";
     }
 }

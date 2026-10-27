@@ -1,6 +1,6 @@
 class Word
 {
-    private string _word;
+    private string _word = "";
     private bool _isHidden;
 
     public string GetWord()
@@ -27,13 +27,11 @@ class Word
     {
         if (_isHidden)
         {
-            Console.Write("____ ");
+            Console.Write(new string('_', _word.Length) + " ");
         }
         else
         {
             Console.Write($"{_word} ");
         }
     }
-
-    
 }
