@@ -1,8 +1,8 @@
-class Goal
+abstract class Goal
 {
-    protected string _name;
-    protected string _description;
-    protected int _points;
+    private string _name;
+    private string _description;
+    private int _points;
 
     public Goal(string name, string description, int points)
     {
@@ -11,42 +11,53 @@ class Goal
         _points = points;
     }
 
-    public virtual void displayGoal()
-    {
-        Console.WriteLine($"Goal: {_name}");
-        Console.WriteLine($"Description: {_description}");
-        Console.WriteLine($"Points: {_points}");
-    }
+    // Protected read-only access keeps the fields private while allowing
+    // derived classes to use the shared values.
+    protected string Name => _name;
+    protected string Description => _description;
+    protected int Points => _points;
 
-    public virtual void GetSaveString()
-    {
-        Console.WriteLine($"{_name},{_description},{_points}");
-    }
+    public virtual bool IsComplete() => false;
 
-    public int GetPoints()
-    {
-        return _points;
-    }
+    // Each goal type records an event differently.
+    public abstract int RecordEvent();
+
+    public virtual string GetDetails() => $"{Name} ({Description})";
+
+    // The first value identifies the goal type when loading a file.
+    public abstract string GetSaveString();
 }
 
 class SimpleGoal : Goal
 {
     private bool _isCompleted;
 
-    public SimpleGoal(string name, string description, int points) : base(name, description, points)
+    public SimpleGoal(string name, string description, int points,
+                      bool isCompleted = false) : base(name, description, points)
     {
-        _isCompleted = false;
+        _isCompleted = isCompleted;
     }
 
-    override public void displayGoal()
+    public override bool IsComplete()
     {
-        base.displayGoal();
-        Console.WriteLine($"Completed: {_isCompleted}");
+        return _isCompleted;
     }
 
-    override public void GetSaveString()
+    public override int RecordEvent()
     {
-        Console.WriteLine($"SimpleGoal,{_name},{_description},{_points},{_isCompleted}");
+        if (_isCompleted) return 0;
+        _isCompleted = true;
+        return Points;
+    }
+
+    public override string GetDetails()
+    {
+        return $"[{(IsComplete() ? "X" : " ")}] {Name} ({Description})";
+    }
+
+    public override string GetSaveString()
+    {
+        return $"SimpleGoal|{Name}|{Description}|{Points}|{_isCompleted}";
     }
 }
 
@@ -56,15 +67,19 @@ class EternalGoal : Goal
     {
     }
 
-    override public void displayGoal()
+    public override int RecordEvent()
     {
-        base.displayGoal();
-        Console.WriteLine("This goal can be completed multiple times.");
+        return Points;
     }
 
-    override public void GetSaveString()
+    public override string GetDetails()
     {
-        Console.WriteLine($"EternalGoal,{_name},{_description},{_points}");
+        return $"[ ] {Name} ({Description})";
+    }
+
+    public override string GetSaveString()
+    {
+        return $"EternalGoal|{Name}|{Description}|{Points}";
     }
 }
 
@@ -74,10 +89,36 @@ class ChecklistGoal : Goal
     private int _goalCount;
     private int _bonusPoints;
 
-    public ChecklistGoal(string name, string description, int points, int goalCount, int bonusPoints) : base(name, description, points)
+    public ChecklistGoal(string name, string description, int points,
+                         int goalCount, int bonusPoints, int timesDone = 0)
+        : base(name, description, points)
     {
-        _timesDone = 0;
+        _timesDone = timesDone;
         _goalCount = goalCount;
         _bonusPoints = bonusPoints;
+    }
+
+    public override bool IsComplete() => _timesDone >= _goalCount;
+
+    public override int RecordEvent()
+    {
+        if (IsComplete()) return 0;
+
+        _timesDone++;
+        int earned = Points;
+        if (_timesDone == _goalCount) earned += _bonusPoints;
+        return earned;
+    }
+
+    public override string GetDetails()
+    {
+        return $"[{(IsComplete() ? "X" : " ")}] {Name} ({Description}) -- " +
+               $"Completed {_timesDone}/{_goalCount} times";
+    }
+
+    public override string GetSaveString()
+    {
+        return $"ChecklistGoal|{Name}|{Description}|{Points}|" +
+               $"{_goalCount}|{_bonusPoints}|{_timesDone}";
     }
 }
