@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-
 class Program
 {
     private static List<Goal> _goals = new List<Goal>();

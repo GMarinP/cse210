@@ -1,30 +1,21 @@
 abstract class Goal
 {
-    private string _name;
-    private string _description;
-    private int _points;
+    protected string _name;
+    protected string _description;
+    protected int _points;
 
-    public Goal(string name, string description, int points)
+    public virtual bool IsComplete()
     {
-        _name = name;
-        _description = description;
-        _points = points;
+        return false;
     }
 
-    // Protected read-only access keeps the fields private while allowing
-    // derived classes to use the shared values.
-    protected string Name => _name;
-    protected string Description => _description;
-    protected int Points => _points;
-
-    public virtual bool IsComplete() => false;
-
-    // Each goal type records an event differently.
     public abstract int RecordEvent();
 
-    public virtual string GetDetails() => $"{Name} ({Description})";
+    public virtual string GetDetails()
+    {
+       return $"{_name} ({_description})"; 
+    } 
 
-    // The first value identifies the goal type when loading a file.
     public abstract string GetSaveString();
 }
 
@@ -33,7 +24,7 @@ class SimpleGoal : Goal
     private bool _isCompleted;
 
     public SimpleGoal(string name, string description, int points,
-                      bool isCompleted = false) : base(name, description, points)
+                      bool isCompleted = false)
     {
         _isCompleted = isCompleted;
     }
@@ -47,39 +38,39 @@ class SimpleGoal : Goal
     {
         if (_isCompleted) return 0;
         _isCompleted = true;
-        return Points;
+        return _points;
     }
 
     public override string GetDetails()
     {
-        return $"[{(IsComplete() ? "X" : " ")}] {Name} ({Description})";
+        return $"[{(IsComplete() ? "X" : " ")}] {_name} ({_description})";
     }
 
     public override string GetSaveString()
     {
-        return $"SimpleGoal|{Name}|{Description}|{Points}|{_isCompleted}";
+        return $"SimpleGoal|{_name}|{_description}|{_points}|{_isCompleted}";
     }
 }
 
 class EternalGoal : Goal
 {
-    public EternalGoal(string name, string description, int points) : base(name, description, points)
+    public EternalGoal(string name, string description, int points)
     {
     }
 
     public override int RecordEvent()
     {
-        return Points;
+        return _points;
     }
 
     public override string GetDetails()
     {
-        return $"[ ] {Name} ({Description})";
+        return $"[ ] {_name} ({_description})";
     }
 
     public override string GetSaveString()
     {
-        return $"EternalGoal|{Name}|{Description}|{Points}";
+        return $"EternalGoal|{_name}|{_description}|{_points}";
     }
 }
 
@@ -91,7 +82,6 @@ class ChecklistGoal : Goal
 
     public ChecklistGoal(string name, string description, int points,
                          int goalCount, int bonusPoints, int timesDone = 0)
-        : base(name, description, points)
     {
         _timesDone = timesDone;
         _goalCount = goalCount;
@@ -105,20 +95,20 @@ class ChecklistGoal : Goal
         if (IsComplete()) return 0;
 
         _timesDone++;
-        int earned = Points;
+        int earned = _points;
         if (_timesDone == _goalCount) earned += _bonusPoints;
         return earned;
     }
 
     public override string GetDetails()
     {
-        return $"[{(IsComplete() ? "X" : " ")}] {Name} ({Description}) -- " +
+        return $"[{(IsComplete() ? "X" : " ")}] {_name} ({_description}) -- " +
                $"Completed {_timesDone}/{_goalCount} times";
     }
 
     public override string GetSaveString()
     {
-        return $"ChecklistGoal|{Name}|{Description}|{Points}|" +
+        return $"ChecklistGoal|{_name}|{_description}|{_points}|" +
                $"{_goalCount}|{_bonusPoints}|{_timesDone}";
     }
 }
